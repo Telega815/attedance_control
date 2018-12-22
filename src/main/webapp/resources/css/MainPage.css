@@ -1,0 +1,302 @@
+@charset "UTF-8";
+
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 0;
+	outline: 0;
+}
+
+main {
+	font-family: Segoe UI;
+	background-color: rgba(0.03, 0.03, 0.03, 0.07);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+}
+
+#header {
+	display: table-cell;
+	background-color: rgba(0,0,0,0.08);
+	width: 100%;
+	padding: 0.5%;
+	text-align: center;
+	border: solid 1px #707070;
+}
+
+#mainName {
+	font-size: 35px;
+	color: #707070;
+}
+
+#mainContainer {
+	max-height: 90%;
+	display: flex;
+}
+
+#leftBlock {
+	padding-right: 20px;
+	min-height: 400px;
+	max-height: 95%;
+	width: 300px;
+	border: solid 2px #707070;
+	margin-top: 10px;
+	border-top-left-radius: 7px;
+	border-bottom-left-radius: 7px;
+	background-color: white;
+	overflow: auto;
+	overflow-x: hidden;
+}
+
+#departments {
+	font: bold 28pt Segoe UI;
+	color: #707070;
+}
+
+.employees {
+	font: 28pt Segoe UI;
+	color: #707070;
+}
+
+
+#rightBlockHeader {
+	display: flex;
+	justify-content: center;
+	border-top-right-radius: 7px;
+	border: solid 2px #707070;
+	margin: 10px 10px 0px 10px;
+	background-color: white;
+}
+
+#departmentName {
+	font: bold 20pt Segoe UI;
+	color: #707070;
+	margin-bottom: 5px;
+}
+
+#rightBlock {
+	min-height: 300px;
+	max-height: 88%;
+	border: solid 2px #707070;
+	background-color: white;
+	margin: 5px 10px 0px 10px;
+	padding-right: 10px;
+	border-bottom-right-radius: 7px;
+	overflow: auto;
+	overflow-x: hidden;
+	text-align: center;
+}
+
+.rbLabels {
+	margin: 0px 10px 0px 0px
+}
+
+
+
+.search {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 260px;
+	height: 25px;
+	margin: 20px 0 0 20px;
+	border: 2px solid black;
+}
+
+#searchImage{
+	width: 18px;
+	height: 18px;
+	margin-right: 5px;
+}
+
+#searchInput {
+	margin-left: 5px;
+	width: 230px;
+	height: 25px;
+	font-size: 20px;
+}
+
+
+.mainContainer {
+	display: flex;
+	justify-content: center;
+	width: 1130px;
+}
+
+.mainLogo {
+	margin: 20px 0;
+	color: white;
+}
+
+.leftBlock {
+	width: 300px;
+	margin: 0 20px 20px 0;
+	border-radius: 5px;
+	background-color: white;
+}
+
+
+
+
+.map {
+	margin: 20px 0 20px 20px;
+}
+
+.map, .map ul, .map li {
+	font-size: 18px;
+	padding: 0;
+	line-height: 1;
+	list-style: none;
+}
+
+.map ul {
+	margin: 0 0 0 .5em;
+}
+
+.map > li:not(:only-child),
+.map li li {
+	position: relative;
+	padding: .2em 0 .2em 1.2em;
+}
+
+.map li:last-child:before {
+	width: calc(1.1em - 1px);
+	border-left: 1px solid #ccc;
+}
+
+.map .drop {
+	position: absolute;
+	left: -.5em;
+	top: .4em;
+	width: .9em;
+	height: .9em;
+	line-height: .9em;
+	text-align: center;
+	background: #fff;
+	font-size: 80%;
+	cursor: pointer;
+}
+
+.map li:last-child > .drop {
+	margin-left: 1px;
+}
+
+.map .drop + ul {
+	display: none;
+}
+
+.map .dropM + ul {
+	display: block;
+}
+
+.departmentLi:hover {
+	cursor: pointer;
+	border: solid 1px #707070;
+}
+
+.rightBlock {
+	width: 800px;
+}
+
+.sort {
+	margin: 5px 0 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.sort span {
+	font-size: 20px;
+}
+
+.sort select {
+	font: bold 14pt Segoe UI;
+	color: #707070;
+	padding: 0 2px;
+	border: 2px solid #707070;
+	margin: 0 5px;
+}
+
+
+
+
+.tables {
+	width: 800px;
+	margin-top: 20px;
+	background-color: white;
+	height: 500px;
+	overflow: auto;
+	overflow-x: hidden;
+}
+
+.table {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 800px;
+	background-color: white;
+}
+
+.days {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin: 20px 0;
+}
+
+.days span {
+	font-size: 20px;
+	margin: 0 15px 0 20px;
+}
+.days table {
+	margin-right: 20px;
+	border-collapse: collapse;
+}
+
+.days td {
+	width: 20px;
+	height: 20px;
+	border: 1px solid black;
+	font-size: 10px;
+	text-align: center;
+}
+
+
+.failure {
+	background-color: red;
+}
+
+.success {
+	background-color: green;
+}
+
+.worker {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.worker span {
+	font-size: 20px;
+	margin: 0 15px 0 20px;
+
+}
+.worker table {
+	margin-right: 20px;
+	border-collapse: collapse;
+}
+
+.worker td {
+	width: 20px;
+	height: 20px;
+	border: 1px solid black;
+	font-size: 10px;
+	text-align: center;
+}

@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="ru.icerebro.attedance_control.entities.Employee" table="employees" schema="public"
+           catalog="access_control_db">
+        <id name="id">
+            <column name="id" sql-type="integer"/>
+            <generator class="increment"/>
+        </id>
+        <property name="name">
+            <column name="e_name" sql-type="varchar(50)" length="50"/>
+        </property>
+        <property name="surname">
+            <column name="e_surname" sql-type="varchar(50)" length="50"/>
+        </property>
+        <property name="patronymic">
+            <column name="e_patronymic" sql-type="varchar(50)" length="50" not-null="true"/>
+        </property>
+        <property name="key">
+            <column name="e_key" sql-type="integer" not-null="true"/>
+        </property>
+        <many-to-one name="department" class="ru.icerebro.attedance_control.entities.Department" lazy="false" fetch="join">
+            <column name="dep_id" not-null="true"/>
+        </many-to-one>
+        <set name="attendance" inverse="true" fetch="join" lazy="false">
+            <key>
+                <column name="e_id" not-null="true"/>
+            </key>
+            <one-to-many not-found="ignore" class="ru.icerebro.attedance_control.entities.Attendance"/>
+        </set>
+    </class>
+</hibernate-mapping>

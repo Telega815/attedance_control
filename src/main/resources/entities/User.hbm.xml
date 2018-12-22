@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="ru.icerebro.attedance_control.entities.User" table="users" schema="public"
+           catalog="access_control_db">
+        <id name="id">
+            <column name="id" sql-type="integer"/>
+            <generator class="increment"/>
+        </id>
+        <property name="username">
+            <column name="username" sql-type="varchar(50)" length="50"/>
+        </property>
+        <property name="pwd">
+            <column name="pwd" sql-type="varchar(50)" length="50"/>
+        </property>
+        <many-to-one name="group" class="ru.icerebro.attedance_control.entities.Group" fetch="join" lazy="false">
+            <column name="group_id"/>
+        </many-to-one>
+    </class>
+</hibernate-mapping>

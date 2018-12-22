@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="ru.icerebro.attedance_control.entities.Attendance" table="attendance_log" schema="public"
+           catalog="access_control_db">
+        <id name="id">
+            <column name="id" sql-type="bigint"/>
+            <generator class="increment"/>
+        </id>
+        <property name="eId">
+            <column name="e_id" sql-type="integer" not-null="true"/>
+        </property>
+        <property name="time">
+            <column name="a_time" sql-type="time"/>
+        </property>
+        <property name="month">
+            <column name="a_month" sql-type="integer" not-null="true"/>
+        </property>
+        <property name="aYear">
+            <column name="a_year" sql-type="integer" not-null="true"/>
+        </property>
+        <property name="day">
+            <column name="a_day" sql-type="integer" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>
