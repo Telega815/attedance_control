@@ -15,14 +15,95 @@ import java.util.*;
 
 public class HtmlServiceImpl implements HtmlService{
 
+
+    private final EmployeesDAO employeesDAO;
     private final DepartmentsDAO departmentsDAO;
     private final AttendanceDAO attendanceDAO;
 
 
     @Autowired
-    public HtmlServiceImpl(DepartmentsDAO departmentsDAO, AttendanceDAO attendanceDAO) {
+    public HtmlServiceImpl(EmployeesDAO employeesDAO, DepartmentsDAO departmentsDAO, AttendanceDAO attendanceDAO) {
+        this.employeesDAO = employeesDAO;
         this.departmentsDAO = departmentsDAO;
         this.attendanceDAO = attendanceDAO;
+    }
+
+//    <table id="tableEmployeeAttendance"><caption align="top">Якубов</caption>
+//        <thead>
+//        <tr>
+//            <th>Дата</th>
+//            <th>Приход</th>
+//            <th>Уход</th>
+//            <th>Часы</th>
+//        </tr>
+//        </thead>
+//        <tbody>
+//        <tr>
+//            <td>1.12.2018</td>
+//            <td>09:00</td>
+//            <td>18:00</td>
+//            <td>9 ч. 0. мин</td>
+//        </tr>
+//        <tr>
+//            <td>2.12.2018</td>
+//            <td>09:00</td>
+//            <td>18:00</td>
+//            <td>9 ч. 0. мин</td>
+//        </tr>
+//        </tbody>
+//    </table>
+
+    public String getEmployeeTable(int e_id, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear){
+        Employee employee = employeesDAO.getEmployee(e_id);
+        String name = "Нет такого динозавра";
+        StringBuilder str = new StringBuilder();
+        if (employee != null){
+            name = employee.getSurname();
+            str.append("<tr>");
+
+            List<Attendance> list = attendanceDAO.getAttendance(employee, fromDay, toDay, fromMonth, toMonth, fromYear, toYear);
+
+            for (Attendance a : list) {
+                str.append(getEmployeesAttendance(a));
+            }
+            str.append("</tr>");
+        }
+
+        String stringBegin = "<table id=\"tableEmployeeAttendance\"><caption align=\"top\">"+name+"</caption>\n" +
+                "        <thead>\n" +
+                "        <tr>\n" +
+                "            <th>Дата</th>\n" +
+                "            <th>Приход</th>\n" +
+                "            <th>Уход</th>\n" +
+                "            <th>Часы</th>\n" +
+                "        </tr>\n" +
+                "        </thead>\n" +
+                "        <tbody>";
+        String stringEnd = "</tbody>\n" +
+                "    </table>";
+
+        return stringBegin + str.toString() + stringEnd;
+    }
+
+    private String getEmployeesAttendance(Attendance attendance){
+//        <td>2.12.2018</td>
+//            <td>09:00</td>
+//            <td>18:00</td>
+//            <td>9 ч. 0. мин</td>;
+                //TODO rework this; Need to split method 1 for all attendance of the day, second for first and last attendance of day
+        HtmlGenerator date = new HtmlGeneratorImpl("td");
+        date.setInnerText(attendance.getDay()+ "." + (attendance.getMonth()+1) + "." +attendance.getaYear());
+
+        HtmlGenerator enter = new HtmlGeneratorImpl("td");
+        enter.setInnerText(attendance.getTime().toLocalTime().getHour()+ "." + attendance.getTime().toLocalTime().getMinute());
+
+        HtmlGenerator leave = new HtmlGeneratorImpl("td");
+        leave.setInnerText(attendance.getDay()+ "." + (attendance.getMonth()+1) + "." +attendance.getaYear());
+
+        HtmlGenerator time = new HtmlGeneratorImpl("td");
+        time.setInnerText(attendance.getDay()+ "." + (attendance.getMonth()+1) + "." +attendance.getaYear());
+
+        return null;
     }
 
     public String getDepNames(){

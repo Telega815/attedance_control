@@ -11,6 +11,7 @@ public interface AttendanceDAO {
     List<Attendance> getAttendance(Employee employee);
     List<Attendance> getAttendance(Employee employee, int month, int year);
     List<Attendance> getAttendance(Employee employee, int month, int year, int day);
+    List<Attendance> getAttendance(Employee employee, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear);
 
     long saveAttendance(Attendance attendance);
     void deleteAttendance(Attendance attendance);

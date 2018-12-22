@@ -25,7 +25,9 @@
     </bean>
 
     <bean name="htmlService" class="ru.icerebro.attedance_control.services.implementations.HtmlServiceImpl">
+        <constructor-arg name="employeesDAO" ref="employeesDAOImpl"/>
         <constructor-arg name="departmentsDAO" ref="departmentsDAOImpl"/>
+        <constructor-arg name="attendanceDAO" ref="attendanceDAOImpl"/>
     </bean>
 
 

@@ -300,3 +300,20 @@ main {
 	font-size: 10px;
 	text-align: center;
 }
+
+#tableEmployeeAttendance {
+	border-collapse: collapse;
+	margin-left: auto;
+	margin-right: auto;
+}
+#tableEmployeeAttendance TR {
+	height: 21px;
+}
+#tableEmployeeAttendance TD, TH {
+	padding: 3px;
+	border: 1px solid black;
+	width: 110px; text-align: center; height: 21px;
+}
+#tableEmployeeAttendance TH {
+	background: #b0e0e6;
+}

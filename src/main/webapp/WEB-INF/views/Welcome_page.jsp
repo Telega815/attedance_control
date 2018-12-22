@@ -24,5 +24,47 @@
     <a href="${pageContext.request.contextPath}/registration">reg</a>
     <p>Change this!</p>
 
+    <style type="text/css">
+        #tableEmployeeAttendance {
+            border-collapse: collapse; /* Убираем двойные линии между ячейками */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #tableEmployeeAttendance TR {
+            height: 21px;
+        }
+        #tableEmployeeAttendance TD, TH {
+            padding: 3px; /* Поля вокруг содержимого таблицы */
+            border: 1px solid black; /* Параметры рамки */
+            width: 110px; text-align: center; height: 21px;
+        }
+        #tableEmployeeAttendance TH {
+            background: #b0e0e6; /* Цвет фона */
+        }
+    </style>
+    <table id="tableEmployeeAttendance"><caption align="top">Якубов</caption>
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Приход</th>
+            <th>Уход</th>
+            <th>Часы</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1.12.2018</td>
+            <td>09:00</td>
+            <td>18:00</td>
+            <td>9 ч. 0. мин</td>
+        </tr>
+        <tr>
+            <td>2.12.2018</td>
+            <td>09:00</td>
+            <td>18:00</td>
+            <td>9 ч. 0. мин</td>
+        </tr>
+        </tbody>
+    </table>
 </body>
 </html>
