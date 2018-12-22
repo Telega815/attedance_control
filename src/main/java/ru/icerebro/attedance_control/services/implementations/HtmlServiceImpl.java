@@ -78,9 +78,52 @@ public class HtmlServiceImpl implements HtmlService{
         return emplLi.toString();
     }
 
-    public String getDepartment( int depId){
-        Department department = departmentsDAO.getDepartment(depId);
+    @Override
+    public String getSelectDate() {
+        HtmlGenerator selectMonth = new HtmlGeneratorImpl("select");
+        selectMonth.addAttribute("id", "selectMonth");
+        HtmlGenerator selectYear = new HtmlGeneratorImpl("select");
+        selectYear.addAttribute("id", "selectYear");
+
         Calendar calendar = new GregorianCalendar();
+        int year = calendar.get(Calendar.YEAR);
+
+        StringBuilder string = new StringBuilder();
+
+        String[] months = new DateFormatSymbols().getShortMonths();
+
+        for (int i = 0; i < 12; i++){
+            if (i == calendar.get(Calendar.MONTH)){
+                string.append("<option selected=\"selected\" id=\"month_");
+            }else {
+                string.append("<option id=\"month_");
+            }
+            string.append(i).append("\">")
+                  .append(months[i].toUpperCase())
+                    .append("</option>");
+        }
+        selectMonth.setInnerText(string.toString());
+
+        string = new StringBuilder();
+
+        for (int i = 2018; i <= year; i++) {
+            if (i == calendar.get(Calendar.YEAR)){
+                string.append("<option selected=\"selected\">");
+            }else {
+                string.append("<option>");
+            }
+            string.append(i)
+                  .append("</option>");
+        }
+
+        selectYear.setInnerText(string.toString());
+
+        return selectMonth.toString() + selectYear.toString();
+    }
+
+    public String getDepartment( int depId, int month, int year){
+        Department department = departmentsDAO.getDepartment(depId);
+        Calendar calendar = new GregorianCalendar(year, month, 1);
 
         int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
@@ -106,48 +149,6 @@ public class HtmlServiceImpl implements HtmlService{
         return depDays.toString() + str;
     }
 
-    @Override
-    public String getSelectDate() {
-        HtmlGenerator selectMonth = new HtmlGeneratorImpl("select");
-        selectMonth.addAttribute("id", "selectMonth");
-        HtmlGenerator selectYear = new HtmlGeneratorImpl("select");
-        selectYear.addAttribute("id", "selectYear");
-
-        Calendar calendar = new GregorianCalendar();
-        int year = calendar.get(Calendar.YEAR);
-
-        StringBuilder string = new StringBuilder();
-
-        String[] months = new DateFormatSymbols().getShortMonths();
-
-        for (int i = 0; i < 12; i++){
-            if (i == calendar.get(Calendar.MONTH)){
-                string.append("<option selected=\"selected\" id=\"month_");
-            }else {
-                string.append("<option id=\"month_");
-            }
-            string.append(i).append("\">")
-                  .append(months[i]).append("</option>");
-        }
-        selectMonth.setInnerText(string.toString());
-
-        string = new StringBuilder();
-
-        for (int i = 2018; i <= year; i++) {
-            if (i == calendar.get(Calendar.YEAR)){
-                string.append("<option selected=\"selected\">");
-            }else {
-                string.append("<option>");
-            }
-            string.append(i)
-                  .append("</option>");
-        }
-
-        selectYear.setInnerText(string.toString());
-
-        return selectMonth.toString() + selectYear.toString();
-    }
-
     private String getEmployee(Employee employee, Calendar calendar){
         StringBuilder string = new StringBuilder();
         int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -155,7 +156,7 @@ public class HtmlServiceImpl implements HtmlService{
 
         //attendanceList.sort(Comparator.comparingLong(o -> o.getTime().getTime()));
 
-        for (int i = 0; i < days; i++) {
+        for (int i = 1; i <= days; i++) {
             List<Attendance> attendanceList = attendanceDAO.getAttendance(employee, calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), i);
             attendanceList.sort(Comparator.comparingLong(o -> o.getTime().getTime()));
 

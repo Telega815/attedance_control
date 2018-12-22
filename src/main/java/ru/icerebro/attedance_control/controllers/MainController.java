@@ -79,7 +79,7 @@ public class MainController {
         if (info.isSelectedEmployee()){
             return "SASASASASASASASASSASASSA";
         }else {
-            return htmlService.getDepartment(info.getDepId());
+            return htmlService.getDepartment(info.getDepId(), info.getMonth(), info.getYear());
         }
     }
 }

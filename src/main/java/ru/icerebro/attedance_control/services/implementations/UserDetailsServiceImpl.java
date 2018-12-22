@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.icerebro.attedance_control.dao.interfaces.GroupDAO;
 import ru.icerebro.attedance_control.dao.interfaces.UserDAO;
+import ru.icerebro.attedance_control.entities.Group;
 import ru.icerebro.attedance_control.entities.User;
 import ru.icerebro.attedance_control.services.interfaces.UserService;
 
@@ -41,8 +42,13 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
 
     public void createUser(User user) {
         user.setPwd(passwordEncoder.encode(user.getPwd()));
-        user.setGroup(groupDAO.getGroup("USERS"));
-        userDAO.saveUser(user);
+        Group group = groupDAO.getGroup("USERS");
+        if (group == null){
+            throw new NullPointerException("Couldn't find group USERS");
+        }else {
+            user.setGroup(group);
+            userDAO.saveUser(user);
+        }
     }
 
 }
