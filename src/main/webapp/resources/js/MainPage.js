@@ -40,6 +40,21 @@ function getRightPanelContent(){
     });
 }
 
+function anal() {
+    var li = document.createElement("li");
+    li.addClass("departmentLi");
+    li.id = "departmentLi_1";
+    li.onclick = selectDepartment(event);
+
+    var ul = document.createElement("ul");
+    ul.addClass("employees");
+    ul.id = "employees_1";
+    ul.style.display = "none";
+
+    var liWorkers = {};
+    liWorkers[0] = document.createElement("li");
+}
+
 function selectDepartment( event ){
 
     var node = event.target;

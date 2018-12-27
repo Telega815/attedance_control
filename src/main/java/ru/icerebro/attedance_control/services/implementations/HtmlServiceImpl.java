@@ -139,14 +139,6 @@ public class HtmlServiceImpl implements HtmlService{
         }
 
         return depLi.toString();
-//        <li class=departmentLi id="departmentLi_0" onclick="selectDepartment(event)">Автоматизация
-//                <ul class="employees" id="employees_0" style="display: none;">
-//                        <li onclick="selectEmployee( event )" onmouseout="outEmployee( event )" onmouseover="overEmployee( event )" class="employeeLi employeeLi_0">Якубов</li>
-//                        <li onclick="selectEmployee( event )" onmouseout="outEmployee( event )" onmouseover="overEmployee( event )" class="employeeLi employeeLi_0">Галустян</li>
-//                        <li onclick="selectEmployee( event )" onmouseout="outEmployee( event )" onmouseover="overEmployee( event )" class="employeeLi employeeLi_0">Харламов</li>
-//                        <li onclick="selectEmployee( event )" onmouseout="outEmployee( event )" onmouseover="overEmployee( event )" class="employeeLi employeeLi_0">Карибидис</li>
-//                    </ul>
-//                </li>
     }
 
     private String getEmployeeLi(Employee employee){
@@ -265,37 +257,6 @@ public class HtmlServiceImpl implements HtmlService{
                 "                                <table>\n" +
                 "                                    <tr>\n" +
                 string +
-//                "                                        <td>9.0</td>\n" +
-//                "                                        <td>9.0</td>\n" +
-//                "                                        <td>9.0</td>\n" +
-//                "                                        <td>9.0</td>\n" +
-//                "                                        <td>9.0</td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td class=\"weekend\"></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
-//                "                                        <td></td>\n" +
                 "                                    </tr>\n" +
                 "                                </table>\n" +
                 "                            </div>";
