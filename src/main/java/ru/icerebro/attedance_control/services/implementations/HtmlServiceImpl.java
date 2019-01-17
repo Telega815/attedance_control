@@ -1,6 +1,7 @@
 package ru.icerebro.attedance_control.services.implementations;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.icerebro.attedance_control.JSON.RespInfo;
 import ru.icerebro.attedance_control.dao.interfaces.AttendanceDAO;
 import ru.icerebro.attedance_control.dao.interfaces.DepartmentsDAO;
 import ru.icerebro.attedance_control.dao.interfaces.EmployeesDAO;
@@ -53,23 +54,55 @@ public class HtmlServiceImpl implements HtmlService{
 //        </tbody>
 //    </table>
 
-    public String getEmployeeTable(int e_id, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear){
-        Employee employee = employeesDAO.getEmployee(e_id);
+    public RespInfo getEmployeeTable(int empId, int minDay, int maxDay, int minMonth, int maxMonth, int minYear, int maxYear){
+        RespInfo respInfo = new RespInfo();
+        respInfo.setMonth(minMonth);
+        respInfo.setYear(minYear);
+        Calendar calendar = new GregorianCalendar(minYear, minMonth, 1);
+        respInfo.setDayInMonth(calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+        Employee employee = employeesDAO.getEmployee(empId);
         String name = "Нет такого динозавра";
         StringBuilder str = new StringBuilder();
         if (employee != null){
             name = employee.getSurname();
-            str.append("<tr>");
 
-            List<Attendance> list = attendanceDAO.getAttendance(employee, fromDay, toDay, fromMonth, toMonth, fromYear, toYear);
+            List<Attendance> list = attendanceDAO.getAttendance(employee, minDay, maxDay, minMonth, maxMonth, minYear, maxYear);
 
-            for (Attendance a : list) {
-                str.append(getEmployeesAttendance(a));
+            list.sort(Comparator.comparingLong(o -> o.getTime().getTime()));
+
+
+            int day = -1;
+            int month = -1;
+            int year = -1;
+
+            List<Attendance> tempList = new ArrayList<>();
+
+            for (Attendance a: list) {
+                if (day == a.getDay() && month == a.getMonth() && year == a.getaYear()){
+                    tempList.add(a);
+                }else {
+                    if (!tempList.isEmpty()){
+                        str.append(getEmployeesAttendance(tempList));
+                        tempList.clear();
+                        day = -1;
+                    }
+                }
+
+                if (day == -1) {
+                    day = a.getDay();
+                    month = a.getMonth();
+                    year = a.getaYear();
+                    tempList.add(a);
+                }
             }
-            str.append("</tr>");
+            if (!tempList.isEmpty()){
+                str.append(getEmployeesAttendance(tempList));
+            }
+
         }
 
-        String stringBegin = "<table id=\"tableEmployeeAttendance\"><caption align=\"top\">"+name+"</caption>\n" +
+        String stringBegin = "<table id=\"tableEmployeeAttendance\"><caption id=\"employeeTableHeader\" align=\"top\">"+name+"</caption>\n" +
                 "        <thead>\n" +
                 "        <tr>\n" +
                 "            <th>Дата</th>\n" +
@@ -79,31 +112,43 @@ public class HtmlServiceImpl implements HtmlService{
                 "        </tr>\n" +
                 "        </thead>\n" +
                 "        <tbody>";
+
+
         String stringEnd = "</tbody>\n" +
                 "    </table>";
 
-        return stringBegin + str.toString() + stringEnd;
+        respInfo.setRespHtml(stringBegin + str.toString() + stringEnd);
+
+        return respInfo;
     }
 
-    private String getEmployeesAttendance(Attendance attendance){
-//        <td>2.12.2018</td>
-//            <td>09:00</td>
-//            <td>18:00</td>
-//            <td>9 ч. 0. мин</td>;
-                //TODO rework this; Need to split method 1 for all attendance of the day, second for first and last attendance of day
+    private String getEmployeesAttendance(List<Attendance> list){
+        if (list.isEmpty()) return "";
+
+        Attendance enterAdnc = list.get(0);
+        Attendance leaveAdnc = list.get(list.size()-1);
+
+        HtmlGenerator tr = new HtmlGeneratorImpl("tr");
+
         HtmlGenerator date = new HtmlGeneratorImpl("td");
-        date.setInnerText(attendance.getDay()+ "." + (attendance.getMonth()+1) + "." +attendance.getaYear());
+        date.setInnerText(enterAdnc.getDay()+ "." + (enterAdnc.getMonth()+1) + "." +enterAdnc.getaYear());
 
         HtmlGenerator enter = new HtmlGeneratorImpl("td");
-        enter.setInnerText(attendance.getTime().toLocalTime().getHour()+ "." + attendance.getTime().toLocalTime().getMinute());
+        enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":" + enterAdnc.getTime().toLocalTime().getMinute());
 
         HtmlGenerator leave = new HtmlGeneratorImpl("td");
-        leave.setInnerText(attendance.getDay()+ "." + (attendance.getMonth()+1) + "." +attendance.getaYear());
+        leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":" + leaveAdnc.getTime().toLocalTime().getMinute());
 
         HtmlGenerator time = new HtmlGeneratorImpl("td");
-        time.setInnerText(attendance.getDay()+ "." + (attendance.getMonth()+1) + "." +attendance.getaYear());
 
-        return null;
+        long deltaHour = leaveAdnc.getTime().toLocalTime().getHour() - enterAdnc.getTime().toLocalTime().getHour();
+        long deltaMin = leaveAdnc.getTime().toLocalTime().getMinute() - enterAdnc.getTime().toLocalTime().getMinute();
+
+
+        time.setInnerText( deltaHour + " ч. " + deltaMin + " мин.");
+
+        tr.setInnerText(date.toString() + enter.toString() + leave.toString() + time.toString());
+        return tr.toString();
     }
 
     public String getDepNames(){
@@ -122,8 +167,13 @@ public class HtmlServiceImpl implements HtmlService{
         depLi.addAttribute("onclick", "selectDepartment(event)");
 
         StringBuilder str = new StringBuilder();
-        str.append(department.getDepName().substring(0, 1).toUpperCase())
-                .append(department.getDepName().substring(1));
+        String transformedDepName = department.getDepName().substring(0, 1).toUpperCase() + department.getDepName().substring(1);
+        str.append(transformedDepName);
+        str.append("<span class =\"depNameHiddenSpan\" id =\"depNameHiddenSpan_")
+                .append(department.getId()).append("\">")
+                .append(transformedDepName)
+                .append("</span>");
+
 
         if (!department.getEmployeesById().isEmpty()){
             str.append("<ul class=\"employees\" id=\"employees_")
@@ -143,6 +193,7 @@ public class HtmlServiceImpl implements HtmlService{
 
     private String getEmployeeLi(Employee employee){
         HtmlGenerator emplLi = new HtmlGeneratorImpl("li");
+        emplLi.addAttribute("id", "employeeLi_" + employee.getId());
         emplLi.addAttribute("class", "employeeLi employeeLi_" + employee.getDepartment().getId());
         emplLi.addAttribute("onclick", "selectEmployee( event )");
         emplLi.addAttribute("onmouseover", "overEmployee( event )");
@@ -181,9 +232,13 @@ public class HtmlServiceImpl implements HtmlService{
 
         for (int i = 2018; i <= year; i++) {
             if (i == calendar.get(Calendar.YEAR)){
-                string.append("<option selected=\"selected\">");
+                string.append("<option id=\"year_")
+                        .append(i)
+                        .append("\" selected=\"selected\">");
             }else {
-                string.append("<option>");
+                string.append("<option id=\"year_")
+                        .append(i)
+                        .append("\">");
             }
             string.append(i)
                   .append("</option>");
@@ -194,12 +249,18 @@ public class HtmlServiceImpl implements HtmlService{
         return selectMonth.toString() + selectYear.toString();
     }
 
-    public String getDepartment( int depId, int month, int year){
+
+    public RespInfo getDepartment(int depId, int month, int year){
+        RespInfo respInfo = new RespInfo();
+        
         Department department = departmentsDAO.getDepartment(depId);
         Calendar calendar = new GregorianCalendar(year, month, 1);
 
         int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
+        respInfo.setDayInMonth(days);
+        respInfo.setMonth(month);
+        respInfo.setYear(year);
+        
         StringBuilder string = new StringBuilder();
         for (int i = 1; i <= days; i++) {
             string.append("<td>").append(i).append("</td>\n");
@@ -215,11 +276,12 @@ public class HtmlServiceImpl implements HtmlService{
                 "                                </table>");
 
         StringBuilder str = new StringBuilder();
-        for (Employee e:department.getEmployeesById()) {
+        for (Employee e: department.getEmployeesById()) {
             str.append(getEmployee(e, calendar));
         }
 
-        return depDays.toString() + str;
+        respInfo.setRespHtml(depDays.toString() + str);
+        return respInfo;
     }
 
     private String getEmployee(Employee employee, Calendar calendar){

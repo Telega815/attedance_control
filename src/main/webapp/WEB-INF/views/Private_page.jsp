@@ -12,7 +12,6 @@
 <html>
 <head>
     <title>Private page!</title>
-    <c:url value="/logout" var="logoutUrl"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/MainPage.css">
     <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery-3.3.1.js" ></script>
     <sec:csrfMetaTags />
@@ -27,9 +26,12 @@
     <div id=mainContainer>
         <div id=leftBlock>
             <div class="search">
-                <input id="searchInput" type="search" name="searchInput" placeholder="Введите ФИО">
+                <input id="searchInput" oninput="searchChanged(event)" type="search" name="searchInput" placeholder="Введите ФИО">
                 <img id="searchImage" class="searchImage" src="${pageContext.request.contextPath}/resources/media/MainPage/search.png">
             </div>
+            <ul id="searchList" class="map" >
+
+            </ul>
             <ul id="departments" class="map">
                 ${depNames}
             </ul>
@@ -40,8 +42,18 @@
             <div id="rightBlockHeader">
                 <h3 id="departmentName">Автоматизация</h3>
             </div>
-            <div class="sort">
-                ${selectDate}
+            <div id="rbMiddle">
+                <div class="sort" id="blockSelectDateDep">
+                    ${selectDate}
+                </div>
+                <div class="sortUser" id="blockSelectDateEmp">
+                    <form>
+                        <span>с <input type="date" name="calendar" id="inputEmpMin" ></span>
+                        <span>по <input type="date" name="calendar" id="inputEmpMax" ></span>
+                    </form>
+                </div>
+                <button id="showButton" class="MyButton" onclick="showButtonClick()">Показать</button>
+                <button id="printButton" class="MyButton" onclick="printButtonClick()">Печать</button>
             </div>
             <div id=rightBlock>
             </div>

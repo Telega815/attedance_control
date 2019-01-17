@@ -54,13 +54,14 @@ public class AttendanceDAOImpl implements AttendanceDAO {
         return list;
     }
 
-    @Override
+
+    @Transactional
     public List<Attendance> getAttendance(Employee employee, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear) {
         List<Attendance> list = sessionFactory.getCurrentSession().createQuery(
                 "from Attendance where eId = :employee " +
-                        "and month < :toMonth and month > :fromMonth " +
-                        "and aYear < :toYear and aYear > :fromYear " +
-                        "and day < :toDay and day > :fromDay")
+                        "and month <= :toMonth and month >= :fromMonth " +
+                        "and aYear <= :toYear and aYear >= :fromYear " +
+                        "and day <= :toDay and day >= :fromDay")
                 .setParameter("employee", employee.getId())
                 .setParameter("toMonth", toMonth)
                 .setParameter("fromMonth", fromMonth)

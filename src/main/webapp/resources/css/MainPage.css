@@ -4,7 +4,7 @@
 	margin: 0;
 	padding: 0;
 	border: 0;
-	font-size: 0;
+	/*font-size: 0;*/
 	outline: 0;
 }
 
@@ -120,6 +120,13 @@ main {
 	font-size: 20px;
 }
 
+#searchList {
+	display: none;
+}
+
+.depNameHiddenSpan{
+	display: none;
+}
 
 .mainContainer {
 	display: flex;
@@ -198,8 +205,23 @@ main {
 	border: solid 1px #707070;
 }
 
+#blockSelectDateEmp {
+	display: none;
+}
+
 .rightBlock {
 	width: 800px;
+}
+
+#rightBlock span{
+	width: 100px;
+	text-align: left;
+}
+
+#rbMiddle{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
 }
 
 .sort {
@@ -221,7 +243,32 @@ main {
 	margin: 0 5px;
 }
 
+.sortUser {
+	margin: 5px 0 0 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
+.sortUser span {
+	font-size: 20px;
+}
+
+.sortUser input {
+	width: 160px;
+	font: bold 14pt Segoe UI;
+	color: #707070;
+	padding: 0 2px;
+	border: 2px solid #707070;
+	margin: 0 5px;
+}
+
+.MyButton {
+	font-size: 18px;
+	color: black;
+	padding: 5px 10px;
+	border: 1px solid black;
+}
 
 
 .tables {
@@ -305,6 +352,7 @@ main {
 	border-collapse: collapse;
 	margin-left: auto;
 	margin-right: auto;
+
 }
 #tableEmployeeAttendance TR {
 	height: 21px;
@@ -316,4 +364,42 @@ main {
 }
 #tableEmployeeAttendance TH {
 	background: #b0e0e6;
+	color: black;
+	font-size: 12px;
+}
+
+.userName {
+	font-size: 20px;
+	color: black;
+}
+
+.userTable {
+	margin: 10px 20px;
+	border-collapse: collapse;
+}
+
+.userTable td {
+	font-size: 18px;
+	color: black;
+	padding: 5px 10px;
+	border: 2px solid black;
+}
+
+
+#employeeTableHeader {
+	color: black;
+	font-size: 20px;
+	padding: 0 0 10px 0;
+}
+
+@media print {
+	#leftBlock {
+		/*visibility: hidden;*/
+		display: none;
+	}
+
+	#rightBlockWraper {
+		/*visibility: visible;*/
+		/*position: absolute;*/
+	}
 }

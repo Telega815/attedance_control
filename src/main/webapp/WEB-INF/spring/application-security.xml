@@ -16,6 +16,10 @@
     <beans:import resource="application-security-beans.xml"/>
 
     <http use-expressions="true">
+
+        <intercept-url pattern="/pidr" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')"/>
+        <intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>
+
         <form-login
                 login-processing-url="/login"
                 login-page='/'
@@ -28,7 +32,6 @@
                 logout-url="/logout"/>
 
     </http>
-
 
 
 

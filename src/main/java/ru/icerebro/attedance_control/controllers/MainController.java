@@ -1,11 +1,16 @@
 package ru.icerebro.attedance_control.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import ru.icerebro.attedance_control.JSON.AdminReqInfo;
+import ru.icerebro.attedance_control.JSON.AdminRespInfo;
 import ru.icerebro.attedance_control.JSON.ReqInfo;
+import ru.icerebro.attedance_control.JSON.RespInfo;
 import ru.icerebro.attedance_control.entities.User;
+import ru.icerebro.attedance_control.services.implementations.AdminService;
 import ru.icerebro.attedance_control.services.interfaces.AttedanceService;
 import ru.icerebro.attedance_control.services.interfaces.HtmlService;
 import ru.icerebro.attedance_control.services.interfaces.UserService;
@@ -19,12 +24,14 @@ public class MainController {
     private final UserService userService;
     private final AttedanceService attedanceService;
     private final HtmlService htmlService;
+    private final AdminService adminService;
 
     @Autowired
-    public MainController(UserService userService, AttedanceService attedanceService, HtmlService htmlService) {
+    public MainController(UserService userService, AttedanceService attedanceService, HtmlService htmlService, AdminService adminService) {
         this.userService = userService;
         this.attedanceService = attedanceService;
         this.htmlService = htmlService;
+        this.adminService = adminService;
     }
 
 
@@ -72,12 +79,46 @@ public class MainController {
         return modelAndView;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "restService/getRightPanelContent", consumes = "application/json", produces = "text/plain;charset=UTF-8")
+    @GetMapping(value = "/admin")
+    public ModelAndView adminPage(){
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("AdminPage");
+        return modelAndView;
+    }
+
+    @PostMapping(value = "admin/restService/createDepartment", consumes = "application/json")
     @ResponseBody
-    public String saveNewPost(@RequestBody ReqInfo info){
+    public int createDep(@RequestBody AdminReqInfo info){
+
+        return adminService.createDepartment(info.getNewDepName());
+    }
+
+    @PostMapping(value = "admin/restService/createEmployee", consumes = "application/json")
+    @ResponseBody
+    public int createEmpl(@RequestBody AdminReqInfo info){
+        return adminService.createEmployee(info);
+    }
+
+    @GetMapping(value = "admin/restService/getDepartments", produces = "application/json")
+    @ResponseBody
+    public AdminRespInfo getDeps(){
+
+        return adminService.getDepartments();
+    }
+
+    @PostMapping(value = "admin/restService/getEmployees", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public AdminRespInfo getEmps(@RequestBody AdminReqInfo info){
+        return adminService.getEmployees(info);
+    }
+
+@RequestMapping(method = RequestMethod.POST, value = "restService/getRightPanelContent", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public RespInfo saveNewPost(@RequestBody ReqInfo info){
 
         if (info.isSelectedEmployee()){
-            return "SASASASASASASASASSASASSA";
+            return htmlService.getEmployeeTable(info.getEmpId(), info.getMinDay(), info.getMaxDay(),
+                    info.getMinMonth(), info.getMaxMonth(), info.getMinYear(), info.getMaxYear());
         }else {
             return htmlService.getDepartment(info.getDepId(), info.getMonth(), info.getYear());
         }
