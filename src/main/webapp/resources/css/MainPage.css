@@ -5,7 +5,7 @@
 	padding: 0;
 	border: 0;
 	/*font-size: 0;*/
-	outline: 0;
+	/*outline: 0;*/
 }
 
 main {
@@ -80,10 +80,10 @@ main {
 
 #rightBlock {
 	min-height: 300px;
-	max-height: 88%;
+	max-height: 75%;
 	border: solid 2px #707070;
 	background-color: white;
-	margin: 5px 10px 0px 10px;
+	margin: 0 10px 0px 10px;
 	padding-right: 10px;
 	border-bottom-right-radius: 7px;
 	overflow: auto;
@@ -161,13 +161,13 @@ main {
 }
 
 .map ul {
-	margin: 0 0 0 .5em;
+	margin: 10px 0 0 10px;
 }
 
 .map > li:not(:only-child),
 .map li li {
 	position: relative;
-	padding: .2em 0 .2em 1.2em;
+	padding: 0 0 0 20px;
 }
 
 .map li:last-child:before {
@@ -200,8 +200,12 @@ main {
 	display: block;
 }
 
-.departmentLi:hover {
+.departmentLi{
 	cursor: pointer;
+	border: solid 1px #ffffff;
+}
+
+.departmentLi:hover {
 	border: solid 1px #707070;
 }
 
@@ -222,10 +226,11 @@ main {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
+	align-items: center;
 }
 
 .sort {
-	margin: 5px 0 0 0;
+	/*margin: 5px 0 0 0;*/
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -243,8 +248,12 @@ main {
 	margin: 0 5px;
 }
 
+.sort select:hover {
+	background-color: rgba(0,0,0,0.08);
+}
+
 .sortUser {
-	margin: 5px 0 0 10px;
+	/*margin: 5px 0 0 10px;*/
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -255,7 +264,7 @@ main {
 }
 
 .sortUser input {
-	width: 160px;
+	width: 170px;
 	font: bold 14pt Segoe UI;
 	color: #707070;
 	padding: 0 2px;
@@ -268,6 +277,8 @@ main {
 	color: black;
 	padding: 5px 10px;
 	border: 1px solid black;
+	margin: 10px;
+	cursor: pointer;
 }
 
 
@@ -357,6 +368,7 @@ main {
 #tableEmployeeAttendance TR {
 	height: 21px;
 }
+
 #tableEmployeeAttendance TD, TH {
 	padding: 3px;
 	border: 1px solid black;
@@ -392,14 +404,51 @@ main {
 	padding: 0 0 10px 0;
 }
 
+.searchedLi{
+	cursor: pointer;
+	border: 1px solid white;
+	background-color: white;
+}
+.searchedLi:hover{
+	border: 1px solid #707070;
+}
+
+
 @media print {
 	#leftBlock {
-		/*visibility: hidden;*/
 		display: none;
 	}
-
-	#rightBlockWraper {
-		/*visibility: visible;*/
-		/*position: absolute;*/
+	.MyButton {
+		display: none;
 	}
+	#rightBlockHeader {
+		border: 1px solid transparent;
+	}
+	main{
+		height: auto;
+	}
+	#mainContainer{
+		max-height: none;
+	}
+	#rightBlock {
+		border: 1px solid transparent;
+		max-height: none;
+	}
+	#header {
+		border: 1px solid transparent;
+		background-color:  rgba(0,0,0,0.08) !important;
+		-webkit-print-color-adjust: exact;
+	}
+	.failure {
+		background-color:  rgba(0,0,0,0.08) !important;
+		-webkit-print-color-adjust: exact;
+	}
+}
+
+#rightBlockWraper {
+	width: 840px;
+}
+
+.employeeLi {
+	height: 35px;
 }

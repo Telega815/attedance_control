@@ -10,6 +10,7 @@ public class ReqInfo {
 
     // EMPLOYEE
     private int empId;
+    private int empKey;
     private int minDay;
     private int maxDay;
     private int minMonth;
@@ -108,5 +109,13 @@ public class ReqInfo {
 
     public void setMaxYear(int maxYear) {
         this.maxYear = maxYear;
+    }
+
+    public int getEmpKey() {
+        return empKey;
+    }
+
+    public void setEmpKey(int empKey) {
+        this.empKey = empKey;
     }
 }

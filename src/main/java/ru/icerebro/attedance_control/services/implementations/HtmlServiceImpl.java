@@ -8,8 +8,10 @@ import ru.icerebro.attedance_control.dao.interfaces.EmployeesDAO;
 import ru.icerebro.attedance_control.entities.Attendance;
 import ru.icerebro.attedance_control.entities.Department;
 import ru.icerebro.attedance_control.entities.Employee;
+import ru.icerebro.attedance_control.services.MyCalendar;
 import ru.icerebro.attedance_control.services.interfaces.HtmlGenerator;
 import ru.icerebro.attedance_control.services.interfaces.HtmlService;
+import sun.misc.Cleaner;
 
 import java.text.DateFormatSymbols;
 import java.util.*;
@@ -29,62 +31,97 @@ public class HtmlServiceImpl implements HtmlService{
         this.attendanceDAO = attendanceDAO;
     }
 
-//    <table id="tableEmployeeAttendance"><caption align="top">Якубов</caption>
-//        <thead>
-//        <tr>
-//            <th>Дата</th>
-//            <th>Приход</th>
-//            <th>Уход</th>
-//            <th>Часы</th>
-//        </tr>
-//        </thead>
-//        <tbody>
-//        <tr>
-//            <td>1.12.2018</td>
-//            <td>09:00</td>
-//            <td>18:00</td>
-//            <td>9 ч. 0. мин</td>
-//        </tr>
-//        <tr>
-//            <td>2.12.2018</td>
-//            <td>09:00</td>
-//            <td>18:00</td>
-//            <td>9 ч. 0. мин</td>
-//        </tr>
-//        </tbody>
-//    </table>
-
     public RespInfo getEmployeeTable(int empId, int minDay, int maxDay, int minMonth, int maxMonth, int minYear, int maxYear){
         RespInfo respInfo = new RespInfo();
         respInfo.setMonth(minMonth);
         respInfo.setYear(minYear);
-        Calendar calendar = new GregorianCalendar(minYear, minMonth, 1);
-        respInfo.setDayInMonth(calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        respInfo.setDayInMonth(MyCalendar.getActualDaysMaximum(minMonth, minYear));
+
+        if (minYear == 0 || maxYear ==0){
+            respInfo.setRespHtml("Ошибка: Дата указана неверно!");
+            return respInfo;
+        }
+
+        if (new MyCalendar(minDay, minMonth, minYear).compare(new MyCalendar(maxDay, maxMonth, maxYear))>0){
+            respInfo.setRespHtml("Ошибка: Дата указана неверно!\n" +
+                    "(начальная дата больше конечной)");
+            return respInfo;
+        }
 
         Employee employee = employeesDAO.getEmployee(empId);
         String name = "Нет такого динозавра";
         StringBuilder str = new StringBuilder();
+
         if (employee != null){
             name = employee.getSurname();
 
             List<Attendance> list = attendanceDAO.getAttendance(employee, minDay, maxDay, minMonth, maxMonth, minYear, maxYear);
 
-            list.sort(Comparator.comparingLong(o -> o.getTime().getTime()));
+            list.sort((o1, o2) -> {
+                //year comparing
+                if (o1.getaYear() > o2.getaYear())
+                    return 1;
+                else if (o1.getaYear() < o2.getaYear())
+                    return -1;
+                else {
+                    //month comparing
+                    if (o1.getMonth() > o2.getMonth())
+                        return 1;
+                    else if (o1.getMonth() < o2.getMonth())
+                        return -1;
+                    else {
+                        //day comparing
+                        if (o1.getDay() > o2.getDay())
+                            return 1;
+                        else if (o1.getDay() < o2.getDay())
+                            return -1;
+                        else {
+                            //time comparing
+                            if (o1.getTime().getTime() > o2.getTime().getTime())
+                                return 1;
+                            else if (o1.getTime().getTime() < o2.getTime().getTime())
+                                return -1;
+                            else {
+                                return 0;
+                            }
+                        }
+                    }
+                }
+            });
 
 
             int day = -1;
             int month = -1;
             int year = -1;
 
+            int[] lastWrittenDate = {minDay , minMonth , minYear};
+
+
             List<Attendance> tempList = new ArrayList<>();
+
+            if (!(minDay == maxDay && minMonth == maxMonth && minYear == maxYear))
+                str.append(getEmployeesEmptyAttendance(minDay , minMonth , minYear));
 
             for (Attendance a: list) {
                 if (day == a.getDay() && month == a.getMonth() && year == a.getaYear()){
                     tempList.add(a);
                 }else {
                     if (!tempList.isEmpty()){
+
+                        MyCalendar minDate = new MyCalendar(lastWrittenDate[0], lastWrittenDate[1], lastWrittenDate[2]);
+                        MyCalendar maxDate = new MyCalendar(day , month , year);
+
+                        if (minDay == day && minMonth == month && minYear == year) str = new StringBuilder();
+
+                        str.append(getEmployeesEmptyAttendance(minDate, maxDate));
+
                         str.append(getEmployeesAttendance(tempList));
+
+
                         tempList.clear();
+                        lastWrittenDate[0] = day;
+                        lastWrittenDate[1] = month;
+                        lastWrittenDate[2] = year;
                         day = -1;
                     }
                 }
@@ -96,10 +133,32 @@ public class HtmlServiceImpl implements HtmlService{
                     tempList.add(a);
                 }
             }
+
             if (!tempList.isEmpty()){
+                MyCalendar minDate = new MyCalendar(lastWrittenDate[0], lastWrittenDate[1], lastWrittenDate[2]);
+                MyCalendar maxDate = new MyCalendar(day , month , year);
+
+                str.append(getEmployeesEmptyAttendance(minDate, maxDate));
+
                 str.append(getEmployeesAttendance(tempList));
             }
 
+            MyCalendar minDate;
+            if (year == -1){
+                minDate = new MyCalendar(minDay , minMonth , minYear);
+            }else {
+                minDate = new MyCalendar(day , month , year);
+            }
+
+            MyCalendar maxDate = new MyCalendar(maxDay , maxMonth, maxYear);
+            if (!minDate.eq(maxDate)) {
+                str.append(getEmployeesEmptyAttendance(minDate, maxDate));
+                str.append(getEmployeesEmptyAttendance(maxDay, maxMonth, maxYear));
+            }else {
+                if (tempList.isEmpty()){
+                    str.append(getEmployeesEmptyAttendance(maxDay, maxMonth, maxYear));
+                }
+            }
         }
 
         String stringBegin = "<table id=\"tableEmployeeAttendance\"><caption id=\"employeeTableHeader\" align=\"top\">"+name+"</caption>\n" +
@@ -122,6 +181,44 @@ public class HtmlServiceImpl implements HtmlService{
         return respInfo;
     }
 
+
+
+    private String getEmployeesEmptyAttendance(MyCalendar minDate, MyCalendar maxDate){
+        StringBuilder builder = new StringBuilder();
+        if (minDate.eq(maxDate)){
+            return "";
+        }
+        minDate.incrementDay();
+        while (!minDate.eq(maxDate)){
+            builder.append(getEmployeesEmptyAttendance(minDate.getDay(), minDate.getMonth(), minDate.getYear()));
+            minDate.incrementDay();
+        }
+
+        return builder.toString();
+    }
+
+
+    private String getEmployeesEmptyAttendance(int day, int month, int year){
+
+        HtmlGenerator tr = new HtmlGeneratorImpl("tr");
+
+        HtmlGenerator date = new HtmlGeneratorImpl("td");
+        date.setInnerText(day+ "." + (month+1) + "." +year);
+
+        HtmlGenerator enter = new HtmlGeneratorImpl("td");
+        enter.setInnerText("--:--");
+
+        HtmlGenerator leave = new HtmlGeneratorImpl("td");
+        leave.setInnerText("--:--");
+
+        HtmlGenerator time = new HtmlGeneratorImpl("td");
+
+        time.setInnerText("0 ч. 0 мин.");
+
+        tr.setInnerText(date.toString() + enter.toString() + leave.toString() + time.toString());
+        return tr.toString();
+    }
+
     private String getEmployeesAttendance(List<Attendance> list){
         if (list.isEmpty()) return "";
 
@@ -134,19 +231,34 @@ public class HtmlServiceImpl implements HtmlService{
         date.setInnerText(enterAdnc.getDay()+ "." + (enterAdnc.getMonth()+1) + "." +enterAdnc.getaYear());
 
         HtmlGenerator enter = new HtmlGeneratorImpl("td");
-        enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":" + enterAdnc.getTime().toLocalTime().getMinute());
+        int min = enterAdnc.getTime().toLocalTime().getMinute();
+        if (min == 0)
+            enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":00");
+        else
+            enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":" + min);
 
         HtmlGenerator leave = new HtmlGeneratorImpl("td");
-        leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":" + leaveAdnc.getTime().toLocalTime().getMinute());
+        min = leaveAdnc.getTime().toLocalTime().getMinute();
+        if (min == 0)
+            leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":00");
+        else
+            leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":" + min);
 
         HtmlGenerator time = new HtmlGeneratorImpl("td");
 
         long deltaHour = leaveAdnc.getTime().toLocalTime().getHour() - enterAdnc.getTime().toLocalTime().getHour();
         long deltaMin = leaveAdnc.getTime().toLocalTime().getMinute() - enterAdnc.getTime().toLocalTime().getMinute();
-
+        if (deltaMin < 0){
+            deltaHour--;
+            deltaMin = 60 + deltaMin;
+        }
 
         time.setInnerText( deltaHour + " ч. " + deltaMin + " мин.");
-
+        if (deltaHour < 8){
+            tr.addAttribute("class", "failure");
+        }else {
+            tr.addAttribute("class", "success");
+        }
         tr.setInnerText(date.toString() + enter.toString() + leave.toString() + time.toString());
         return tr.toString();
     }
@@ -173,6 +285,7 @@ public class HtmlServiceImpl implements HtmlService{
                 .append(department.getId()).append("\">")
                 .append(transformedDepName)
                 .append("</span>");
+
 
 
         if (!department.getEmployeesById().isEmpty()){
@@ -295,12 +408,23 @@ public class HtmlServiceImpl implements HtmlService{
             List<Attendance> attendanceList = attendanceDAO.getAttendance(employee, calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), i);
             attendanceList.sort(Comparator.comparingLong(o -> o.getTime().getTime()));
 
-            float jobTime = 0;
+            double jobTime = 0;
             if (!attendanceList.isEmpty()){
-                jobTime = (attendanceList.get(attendanceList.size()-1).getTime().getTime() - attendanceList.get(0).getTime().getTime())/1000/60/60;
+                Attendance enterAdnc = attendanceList.get(0);
+                Attendance leaveAdnc = attendanceList.get(attendanceList.size()-1);
+
+                long deltaHour = leaveAdnc.getTime().toLocalTime().getHour() - enterAdnc.getTime().toLocalTime().getHour();
+                long deltaMin = leaveAdnc.getTime().toLocalTime().getMinute() - enterAdnc.getTime().toLocalTime().getMinute();
+
+                if (deltaMin < 0){
+                    deltaHour--;
+                    deltaMin = 60 + deltaMin;
+                }
+
+                jobTime = (double)deltaHour + (double)deltaMin/60;
             }
             if (jobTime == 0){
-                string.append("<td>")
+                string.append("<td>0")
                         .append("</td>\n");
             }else if (jobTime < 8){
                 string.append("<td class=\"failure\">")

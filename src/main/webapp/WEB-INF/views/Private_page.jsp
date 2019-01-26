@@ -11,7 +11,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <html>
 <head>
-    <title>Private page!</title>
+    <title>Учет сотрудников ННБ</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/MainPage.css">
     <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery-3.3.1.js" ></script>
     <sec:csrfMetaTags />
@@ -20,9 +20,12 @@
 <body>
 <header></header>
 <main>
-    <div id=header>
-        <h1 id=mainName>Учет сотрудников ННБ</h1>
-    </div>
+
+    <c:set var="mainHeaderName" value="Учет сотрудников ННБ"/>
+    <jsp:include page="parts/header.jsp"/>
+    <%--<div id=header>--%>
+        <%--<h1 id=mainName>Учет сотрудников ННБ</h1>--%>
+    <%--</div>--%>
     <div id=mainContainer>
         <div id=leftBlock>
             <div class="search">
@@ -62,7 +65,10 @@
 </main>
 <footer></footer>
 
-<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/MainPage.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/mainPage/MainPage.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/mainPage/ajaxContentRequest.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/mainPage/select.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/mainPage/search.js"></script>
 
 </body>
 </html>

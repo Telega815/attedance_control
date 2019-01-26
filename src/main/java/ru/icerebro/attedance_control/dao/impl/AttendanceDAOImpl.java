@@ -57,19 +57,77 @@ public class AttendanceDAOImpl implements AttendanceDAO {
 
     @Transactional
     public List<Attendance> getAttendance(Employee employee, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear) {
-        List<Attendance> list = sessionFactory.getCurrentSession().createQuery(
+        List<Attendance> list;
+        if (toYear == fromYear){
+            if (toMonth == fromMonth){
+                list =  sessionFactory.getCurrentSession().createQuery(
+                        "from Attendance where eId = :employee " +
+                                "and month = :toMonth and aYear = :toYear " +
+                                "and day <= :toDay and day >= :fromDay")
+
+                        .setParameter("employee", employee.getId())
+                        .setParameter("toMonth", toMonth)
+                        .setParameter("toYear", toYear)
+                        .setParameter("toDay", toDay)
+                        .setParameter("fromDay", fromDay)
+                        .list();
+            }else {
+                list = yearsEqual(employee, fromDay, toDay, fromMonth, toMonth, fromYear, toYear);
+            }
+        }else {
+            list = yearsNotEqual(employee, fromDay, toDay, fromMonth, toMonth, fromYear, toYear);
+        }
+
+
+        return list;
+    }
+
+    @Transactional
+    List<Attendance> yearsNotEqual(Employee employee, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear){
+        List<Attendance> list;
+        list =  yearsEqual(employee, fromDay, toDay, fromMonth , toMonth, fromYear, fromYear);
+
+        for (int i = fromYear+1; i < toYear; i++) {
+            list.addAll(yearsEqual(employee, fromDay, toDay, fromMonth , toMonth, i, i));
+        }
+
+        list.addAll(yearsEqual(employee, fromDay, toDay, fromMonth , toMonth, toYear, toYear));
+
+        return list;
+    }
+
+    @Transactional
+    List<Attendance> yearsEqual(Employee employee, int fromDay, int toDay, int fromMonth, int toMonth, int fromYear, int toYear){
+        List<Attendance> list;
+        list =  sessionFactory.getCurrentSession().createQuery(
                 "from Attendance where eId = :employee " +
-                        "and month <= :toMonth and month >= :fromMonth " +
-                        "and aYear <= :toYear and aYear >= :fromYear " +
-                        "and day <= :toDay and day >= :fromDay")
+                        "and month = :fromMonth " +
+                        "and aYear = :fromYear " +
+                        "and day >= :fromDay")
                 .setParameter("employee", employee.getId())
-                .setParameter("toMonth", toMonth)
                 .setParameter("fromMonth", fromMonth)
-                .setParameter("toYear", toYear)
                 .setParameter("fromYear", fromYear)
-                .setParameter("toDay", toDay)
                 .setParameter("fromDay", fromDay)
                 .list();
+        for (int i = fromMonth+1; i < toMonth; i++) {
+            list.addAll(sessionFactory.getCurrentSession().createQuery(
+                    "from Attendance where eId = :employee " +
+                            "and month = :fromMonth and aYear = :fromYear ")
+                    .setParameter("employee", employee.getId())
+                    .setParameter("fromMonth", i)
+                    .setParameter("fromYear", fromYear)
+                    .list());
+        }
+
+        list.addAll(sessionFactory.getCurrentSession().createQuery(
+                "from Attendance where eId = :employee " +
+                        "and month = :toMonth and aYear = :fromYear " +
+                        "and day <= :toDay")
+                .setParameter("employee", employee.getId())
+                .setParameter("toMonth", toMonth)
+                .setParameter("fromYear", fromYear)
+                .setParameter("toDay", toDay)
+                .list());
         return list;
     }
 

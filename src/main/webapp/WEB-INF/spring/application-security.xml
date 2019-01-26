@@ -17,13 +17,13 @@
 
     <http use-expressions="true">
 
-        <intercept-url pattern="/pidr" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')"/>
+        <intercept-url pattern="/attendance" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')"/>
         <intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>
 
         <form-login
                 login-processing-url="/login"
                 login-page='/'
-                default-target-url="/pidr"
+                default-target-url="/attendance"
                 authentication-failure-url="/?error=true"
                 username-parameter="username"
                 password-parameter="pwd"/>

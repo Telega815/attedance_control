@@ -33,7 +33,10 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
         try {
             user = userDAO.getUser(username);
         } catch (Exception e) {
-            throw new UsernameNotFoundException(username+" not found");
+
+
+            System.out.println(e.getMessage());
+            throw new UsernameNotFoundException(username+" not found\n"+ e.getMessage());
         }
 
         return new org.springframework.security.core.userdetails
@@ -41,8 +44,30 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserService {
     }
 
     public void createUser(User user) {
+        User existingUser = userDAO.getUser(user.getUsername().toLowerCase());
+        if (existingUser != null)
+            return;
+
+        user.setUsername(user.getUsername().toLowerCase());
         user.setPwd(passwordEncoder.encode(user.getPwd()));
         Group group = groupDAO.getGroup("USERS");
+        if (group == null){
+            throw new NullPointerException("Couldn't find group USERS");
+        }else {
+            user.setGroup(group);
+            userDAO.saveUser(user);
+        }
+    }
+
+    @Override
+    public void createAdmin(User user) {
+        User existingUser = userDAO.getUser(user.getUsername().toLowerCase());
+        if (existingUser != null)
+            return;
+
+        user.setUsername(user.getUsername().toLowerCase());
+        user.setPwd(passwordEncoder.encode(user.getPwd()));
+        Group group = groupDAO.getGroup("ADMINS");
         if (group == null){
             throw new NullPointerException("Couldn't find group USERS");
         }else {

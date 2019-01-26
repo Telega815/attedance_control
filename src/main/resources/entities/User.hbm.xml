@@ -10,10 +10,10 @@
             <column name="id" sql-type="integer"/>
             <generator class="increment"/>
         </id>
-        <property name="username">
+        <property name="username" type="java.lang.String">
             <column name="username" sql-type="varchar(50)" length="50"/>
         </property>
-        <property name="pwd">
+        <property name="pwd" type="java.lang.String">
             <column name="pwd" sql-type="varchar(50)" length="50"/>
         </property>
         <many-to-one name="group" class="ru.icerebro.attedance_control.entities.Group" fetch="join" lazy="false">

@@ -11,46 +11,93 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <html>
 <head>
-    <title>AdminPage</title>
-    <%--<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/MainPage.css">--%>
+    <title>Admin</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/AdminPage.css">
     <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery-3.3.1.js" ></script>
     <sec:csrfMetaTags />
     <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/csrfHeader.js" ></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/AdminPage.js" ></script>
 </head>
 <body>
-        <div>
-            <input type="text" id="newDepName">
-            <input onclick="createDepartment()" type="button" value="new">
+<main>
+    <c:set var="mainHeaderName" value="Админка"/>
+    <jsp:include page="parts/header.jsp"/>
+        <div class="AdminStyleP"><p>Добавление отдела</p></div>
+        <div id="idcreateDepartment">
+            <p>Новый отдел:</p>
+            <input type="text" id="newDepName" placeholder="Name">
+            <input id="createButton" onclick="createDepartment()" type="button" value="Create">
         </div>
-        <div>
-            <select onchange="onchangeTest(event)" id="selectDepartment">
-            </select>
+    <div class="AdminStyleP"><p>Регистрацтя сотрудника</p></div>
+    <div id="idcreateEmployee">
+        <div id="idImputCreateEmployeeName">
+            <p></p>
+            <p>Фамилия:</p>
+            <p>Имя:</p>
+            <p>Отчество:</p>
+            <p>Ключ:</p>
         </div>
+        <div id="idImputCreateEmployee">
+            <select class="SelectDepartmentClass" id="selectDepartment"></select>
 
-        <div>
-            <input class="AdminEmployeeInput" type="text" placeholder="surname">
-            <input class="AdminEmployeeInput" type="text" placeholder="name">
-            <input class="AdminEmployeeInput" type="text" placeholder="patronymic">
-            <input class="AdminEmployeeInput" type="number" placeholder="key">
-            <input onclick="createEmployee()" type="button" value="create">
+            <input class="AdminEmployeeInput" type="text" >
+            <input class="AdminEmployeeInput" type="text" >
+            <input class="AdminEmployeeInput" type="text" >
+            <input class="AdminEmployeeInput" type="number" >
+            <input id="createEmployeeButton" onclick="createEmployee()" type="button" value="Create">
         </div>
+    </div>
     <p id="successLabel" style="display: none">Success!!!</p>
 
-
+    <div class="AdminStyleP"><p>Изменение данных</p></div>
+<div id="editIdCountainer">
+    <div id="editId">
+    <select onchange="onchangeTest(event)" id="selectDepartment2" class="SelectDepartmentClass" ></select>
         <div>
-            <ul id="adminEmployeeList" style="border: 2px solid red; width: 400px">
+            <ul id="adminEmployeeList">
             </ul>
         </div>
 
-        <form>
-            <span>с <input type="date" name="calendar" id="inputEmpMin" ></span>
-            <span>по <input type="date" name="calendar" id="inputEmpMax" ></span>
-        </form>
-
-        <div style="border: 2px solid red; width: 800px" id="adminAttendanceList">
-
+        <div id="idImputCreateEmployeeK">
+            <p>Ключ:</p>
+            <input id="inputKeyField"  type="number" >
+            <input id="createEmployeeButtonK" onclick="saveNewKey()" type="button" value="Save">
         </div>
 
+        <form id="ifFormDay">
+            <span>Посещаемость за <input type="date" name="calendar" id="inputAttendanceOfDay" ></span>
+            <input id="ifFormDayButton" type="button" onclick="getAttendanceOfDay()" value="show">
+        </form>
+        <div id="timeEdit">
+            <ul id="adminAttendanceOfDay"></ul>
+            <input id="idDeleteButton" type="button" onclick="deleteAttendanceOfDay()" value="Удалить">
+        </div>
+    </div>
+    <div id="idDivInput">
+
+    <form>
+        <span>с <input type="date" name="calendar" id="inputEmpMin" ></span>
+        <span>по <input type="date" name="calendar" id="inputEmpMax" ></span>
+        <input class="ButtonButton" type="button" onclick="getAttendance()" value="show">
+    </form>
+
+    <div>
+        <input type="datetime-local" id="adminAddAttendanceInput">
+        <input class="ButtonButton" type="button" value="write" onclick="writeAttendance()">
+    </div>
+         <div id="adminAttendanceList"></div>
+    </div>
+</div>
+    <div id="idcheckmark">
+    <div class="check_mark">
+        <div class="hide sa-icon sa-success animate">
+            <span class="sa-line sa-tip animateSuccessTip"></span>
+            <span class="sa-line sa-long animateSuccessLong"></span>
+            <div class="sa-placeholder"></div>
+            <div class="sa-fix"></div>
+        </div>
+    </div>
+    </div>
+</main>
 </body>
 </html>

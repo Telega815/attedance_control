@@ -10,7 +10,7 @@
 <%@taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <html>
 <head>
-    <title>Абосрация!</title>
+    <title>Registration</title>
 </head>
 <body>
     <form:form id="RegistrationForm" class="inputForm" method="POST" modelAttribute="user">

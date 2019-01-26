@@ -1,11 +1,14 @@
 package ru.icerebro.attedance_control.dao.impl;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.icerebro.attedance_control.dao.interfaces.UserDAO;
 import ru.icerebro.attedance_control.entities.User;
+
+import java.util.List;
 
 @Component
 public class UserDAOImpl implements UserDAO {
@@ -14,11 +17,15 @@ public class UserDAOImpl implements UserDAO {
 
     @Transactional
     public User getUser(String username) {
-        return (User)sessionFactory.getCurrentSession()
+        Session session = sessionFactory.getCurrentSession();
+        List<User> list = session
                 .createQuery("from User where username = :username")
-                .setParameter("username", username)
-                .list()
-                .get(0);
+                .setParameter("username", username.toLowerCase())
+                .list();
+        if (list.isEmpty())
+            return null;
+
+        return list.get(0);
     }
 
     @Transactional

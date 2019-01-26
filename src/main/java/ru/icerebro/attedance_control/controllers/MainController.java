@@ -2,13 +2,15 @@ package ru.icerebro.attedance_control.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import ru.icerebro.attedance_control.JSON.AdminReqInfo;
-import ru.icerebro.attedance_control.JSON.AdminRespInfo;
-import ru.icerebro.attedance_control.JSON.ReqInfo;
-import ru.icerebro.attedance_control.JSON.RespInfo;
+import ru.icerebro.attedance_control.JSON.*;
+import ru.icerebro.attedance_control.entities.Authority;
 import ru.icerebro.attedance_control.entities.User;
 import ru.icerebro.attedance_control.services.implementations.AdminService;
 import ru.icerebro.attedance_control.services.interfaces.AttedanceService;
@@ -16,7 +18,9 @@ import ru.icerebro.attedance_control.services.interfaces.HtmlService;
 import ru.icerebro.attedance_control.services.interfaces.UserService;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 @Controller
 public class MainController {
@@ -60,12 +64,23 @@ public class MainController {
 
     @PostMapping(value = "/registration")
     public String registationPost(@ModelAttribute("user") User user){
-        userService.createUser(user);
+        Collection<SimpleGrantedAuthority> AUTHORITIES = (Collection<SimpleGrantedAuthority>)SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        boolean admin = false;
+        for (GrantedAuthority simpleGrantedAuthority:AUTHORITIES) {
+            if (simpleGrantedAuthority.getAuthority().equals("ROLE_ADMIN"))
+                admin = true;
+        }
+        if (admin) {
+            userService.createUser(user);
+        }else if (user.getUsername().equals("admin") && user.getPwd().equals("563453sei")){
+            userService.createAdmin(user);
+        }
+
         return "redirect:/";
     }
 
 
-    @GetMapping(value = "/pidr")
+    @GetMapping(value = "/attendance")
     public ModelAndView mainPage(){
         ModelAndView modelAndView = new ModelAndView();
 //        String s = attedanceService.getEmployees("Данилов").get(0).getName();
@@ -112,10 +127,42 @@ public class MainController {
         return adminService.getEmployees(info);
     }
 
-@RequestMapping(method = RequestMethod.POST, value = "restService/getRightPanelContent", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "admin/restService/getAttendanceOfDay", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public AdminRespInfo getAttendanceOfDay(@RequestBody ReqInfo info){
+        return adminService.getAttendanceOfDay(info);
+    }
+
+    @PostMapping(value = "admin/restService/deleteAttendanceOfDay", consumes = "application/json")
+    @ResponseBody
+    public void deleteAttendanceOfDay(@RequestBody ReqInfo info){
+        adminService.deleteAttendanceOfDay(info);
+    }
+
+    @PostMapping(value = "admin/restService/getEmpKey", consumes = "application/json")
+    @ResponseBody
+    public int getEmpKey(@RequestBody ReqInfo info){
+        return adminService.getEmpKey(info);
+    }
+
+    @PostMapping(value = "admin/restService/setEmpKey", consumes = "application/json")
+    @ResponseBody
+    public void setEmpKey(@RequestBody ReqInfo info){
+        adminService.setEmpKey(info);
+    }
+
+
+    @PostMapping(value = "admin/restService/writeAttendance", consumes = "application/json")
+    @ResponseBody
+    public long writeAttendance(@RequestBody AdminReqAttendance info){
+        return adminService.writeAttendance(info);
+    }
+
+
+
+    @RequestMapping(method = RequestMethod.POST, value = "restService/getRightPanelContent", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public RespInfo saveNewPost(@RequestBody ReqInfo info){
-
         if (info.isSelectedEmployee()){
             return htmlService.getEmployeeTable(info.getEmpId(), info.getMinDay(), info.getMaxDay(),
                     info.getMinMonth(), info.getMaxMonth(), info.getMinYear(), info.getMaxYear());
