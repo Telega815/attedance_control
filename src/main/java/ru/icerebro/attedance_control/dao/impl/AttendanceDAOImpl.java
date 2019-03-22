@@ -1,7 +1,9 @@
 package ru.icerebro.attedance_control.dao.impl;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.icerebro.attedance_control.dao.interfaces.AttendanceDAO;
@@ -17,6 +19,8 @@ import java.util.List;
 public class AttendanceDAOImpl implements AttendanceDAO {
 
     private final SessionFactory sessionFactory;
+
+    private short tryCounter = 0;
 
     @Autowired
     public AttendanceDAOImpl(SessionFactory sessionFactory) {

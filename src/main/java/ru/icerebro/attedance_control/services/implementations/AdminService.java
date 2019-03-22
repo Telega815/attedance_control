@@ -1,8 +1,11 @@
 package ru.icerebro.attedance_control.services.implementations;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import ru.icerebro.attedance_control.JSON.AdminReqAttendance;
 import ru.icerebro.attedance_control.JSON.AdminReqInfo;
@@ -28,6 +31,7 @@ public class AdminService {
 
     private final AttendanceDAO attendanceDAO;
 
+    private int tryNumber = 0;
 
     @Autowired
     public AdminService(DepartmentsDAO departmentsDAO, EmployeesDAO employeesDAO, AttendanceDAO attendanceDAO) {
@@ -124,6 +128,25 @@ public class AdminService {
         attendance.setMonth(info.getMonth());
         attendance.setDay(info.getDay());
 
-        return attendanceDAO.saveAttendance(attendance);
+
+        return this.saveAttendance(attendance);
+    }
+
+    private long saveAttendance(Attendance attendance){
+        long r = -1;
+        DataIntegrityViolationException exception = new DataIntegrityViolationException("primary key already exist");
+        while (tryNumber < 150){
+            try {
+                r = attendanceDAO.saveAttendance(attendance);
+                break;
+            }catch (DataIntegrityViolationException e){
+                tryNumber++;
+            }
+        }
+        tryNumber = 0;
+        if (r == -1){
+            throw exception;
+        }
+        return r;
     }
 }

@@ -23,7 +23,6 @@ public class HtmlServiceImpl implements HtmlService{
     private final DepartmentsDAO departmentsDAO;
     private final AttendanceDAO attendanceDAO;
 
-
     @Autowired
     public HtmlServiceImpl(EmployeesDAO employeesDAO, DepartmentsDAO departmentsDAO, AttendanceDAO attendanceDAO) {
         this.employeesDAO = employeesDAO;
@@ -222,6 +221,8 @@ public class HtmlServiceImpl implements HtmlService{
     private String getEmployeesAttendance(List<Attendance> list){
         if (list.isEmpty()) return "";
 
+        Calendar currentDate = new GregorianCalendar();
+
         Attendance enterAdnc = list.get(0);
         Attendance leaveAdnc = list.get(list.size()-1);
 
@@ -231,34 +232,70 @@ public class HtmlServiceImpl implements HtmlService{
         date.setInnerText(enterAdnc.getDay()+ "." + (enterAdnc.getMonth()+1) + "." +enterAdnc.getaYear());
 
         HtmlGenerator enter = new HtmlGeneratorImpl("td");
+
         int min = enterAdnc.getTime().toLocalTime().getMinute();
         if (min == 0)
             enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":00");
-        else
-            enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":" + min);
+        else{
+            if (min >= 10){
+                enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":" + min);
+            }else {
+                enter.setInnerText(enterAdnc.getTime().toLocalTime().getHour()+ ":0" + min);
+            }
+        }
 
         HtmlGenerator leave = new HtmlGeneratorImpl("td");
-        min = leaveAdnc.getTime().toLocalTime().getMinute();
-        if (min == 0)
-            leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":00");
-        else
-            leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":" + min);
+        if (list.size() == 1){
+            leave.setInnerText("--:--");
+        }else {
+            min = leaveAdnc.getTime().toLocalTime().getMinute();
+            if (min == 0)
+                leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":00");
+            else{
+                if (min >= 10) {
+                    leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":" + min);
+                }else {
+                    leave.setInnerText(leaveAdnc.getTime().toLocalTime().getHour()+ ":0" + min);
+                }
+            }
+        }
+
 
         HtmlGenerator time = new HtmlGeneratorImpl("td");
 
-        long deltaHour = leaveAdnc.getTime().toLocalTime().getHour() - enterAdnc.getTime().toLocalTime().getHour();
-        long deltaMin = leaveAdnc.getTime().toLocalTime().getMinute() - enterAdnc.getTime().toLocalTime().getMinute();
-        if (deltaMin < 0){
-            deltaHour--;
-            deltaMin = 60 + deltaMin;
+        if (list.size() == 1){
+            time.setInnerText("0 ч. 0 мин.");
+            if (enterAdnc.getDay() == currentDate.get(Calendar.DAY_OF_MONTH) &&
+                    enterAdnc.getMonth() == currentDate.get(Calendar.MONTH) &&
+                    enterAdnc.getaYear() == currentDate.get(Calendar.YEAR)){
+                tr.addAttribute("class", "CurrentDay");
+            }else {
+                tr.addAttribute("class", "failure");
+            }
+        }else {
+            long deltaHour = leaveAdnc.getTime().toLocalTime().getHour() - enterAdnc.getTime().toLocalTime().getHour();
+            long deltaMin = leaveAdnc.getTime().toLocalTime().getMinute() - enterAdnc.getTime().toLocalTime().getMinute();
+            if (deltaMin < 0){
+                deltaHour--;
+                deltaMin = 60 + deltaMin;
+            }
+
+            time.setInnerText( deltaHour + " ч. " + deltaMin + " мин.");
+            if (enterAdnc.getDay() == currentDate.get(Calendar.DAY_OF_MONTH) &&
+                    enterAdnc.getMonth() == currentDate.get(Calendar.MONTH) &&
+                    enterAdnc.getaYear() == currentDate.get(Calendar.YEAR)){
+                tr.addAttribute("class", "CurrentDay");
+            }else {
+                if (deltaHour >= 8){
+                    tr.addAttribute("class", "success");
+                }else if (deltaHour == 7 && deltaMin >= 30){
+                    tr.addAttribute("class", "success");
+                }else {
+                    tr.addAttribute("class", "failure");
+                }
+            }
         }
 
-        time.setInnerText( deltaHour + " ч. " + deltaMin + " мин.");
-        if (deltaHour < 8){
-            tr.addAttribute("class", "failure");
-        }else {
-            tr.addAttribute("class", "success");
-        }
         tr.setInnerText(date.toString() + enter.toString() + leave.toString() + time.toString());
         return tr.toString();
     }
@@ -400,6 +437,7 @@ public class HtmlServiceImpl implements HtmlService{
     private String getEmployee(Employee employee, Calendar calendar){
         StringBuilder string = new StringBuilder();
         int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        Calendar currentDate = new GregorianCalendar();
 
 
         //attendanceList.sort(Comparator.comparingLong(o -> o.getTime().getTime()));
@@ -423,20 +461,49 @@ public class HtmlServiceImpl implements HtmlService{
 
                 jobTime = (double)deltaHour + (double)deltaMin/60;
             }
-            if (jobTime == 0){
-                string.append("<td>0")
-                        .append("</td>\n");
-            }else if (jobTime < 8){
-                string.append("<td class=\"failure\">")
-                        .append(String.format("%.1f", jobTime))
-                        .append("</td>\n");
+
+            if (attendanceList.size() == 1){
+                if (i == currentDate.get(Calendar.DAY_OF_MONTH) &&
+                        calendar.get(Calendar.MONTH) == currentDate.get(Calendar.MONTH) &&
+                        calendar.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)){
+                    string.append("<td class=\"CurrentDay\">0")
+                            .append("</td>\n");
+                }else {
+                    string.append("<td class=\"failure\">0")
+                            .append("</td>\n");
+                }
+            }else if (attendanceList.size() > 1) {
+                if (i == currentDate.get(Calendar.DAY_OF_MONTH) &&
+                        calendar.get(Calendar.MONTH) == currentDate.get(Calendar.MONTH) &&
+                        calendar.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)){
+                    if (jobTime == 0){
+                        string.append("<td class=\"CurrentDay\">0")
+                                .append("</td>\n");
+                    }else {
+                        string.append("<td class=\"CurrentDay\">")
+                                .append(String.format("%.1f", jobTime))
+                                .append("</td>\n");
+                    }
+                }else {
+                    if (jobTime == 0){
+                        string.append("<td class=\"failure\">0")
+                                .append("</td>\n");
+                    }else if (jobTime >= 7.5){
+                        string.append("<td class=\"success\">")
+                                .append(String.format("%.1f", jobTime))
+                                .append("</td>\n");
+                    }
+                    else {
+                        string.append("<td class=\"failure\">")
+                                .append(String.format("%.1f", jobTime))
+                                .append("</td>\n");
+                    }
+                }
             }else {
-                string.append("<td class=\"success\">")
-                        .append(String.format("%.1f", jobTime))
+                string.append("<td>0")
                         .append("</td>\n");
             }
         }
-
 
         return "<div class=\"worker\">\n" +
                 "                                <span>" + employee.getSurname() + "</span>\n" +
