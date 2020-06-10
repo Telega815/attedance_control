@@ -11,7 +11,6 @@ import ru.icerebro.attedance_control.entities.Employee;
 import ru.icerebro.attedance_control.services.MyCalendar;
 import ru.icerebro.attedance_control.services.interfaces.HtmlGenerator;
 import ru.icerebro.attedance_control.services.interfaces.HtmlService;
-import sun.misc.Cleaner;
 
 import java.text.DateFormatSymbols;
 import java.util.*;
@@ -330,7 +329,8 @@ public class HtmlServiceImpl implements HtmlService{
                     .append(department.getId())
                     .append("\" style=\"display: none;\">");
             for (Employee e: department.getEmployeesById()) {
-                str.append(getEmployeeLi(e));
+                if (!e.isE_hidden())
+                    str.append(getEmployeeLi(e));
             }
             str.append("</ul>");
             depLi.setInnerText(str.toString());
@@ -427,7 +427,8 @@ public class HtmlServiceImpl implements HtmlService{
 
         StringBuilder str = new StringBuilder();
         for (Employee e: department.getEmployeesById()) {
-            str.append(getEmployee(e, calendar));
+            if (!e.isE_hidden())
+                str.append(getEmployee(e, calendar));
         }
 
         respInfo.setRespHtml(depDays.toString() + str);

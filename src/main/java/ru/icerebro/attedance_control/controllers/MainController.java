@@ -1,26 +1,25 @@
 package ru.icerebro.attedance_control.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.icerebro.attedance_control.JSON.*;
-import ru.icerebro.attedance_control.entities.Authority;
+import ru.icerebro.attedance_control.dao.interfaces.DudesDAO;
+import ru.icerebro.attedance_control.dao.interfaces.EmployeesDAO;
+import ru.icerebro.attedance_control.entities.Dude;
+import ru.icerebro.attedance_control.entities.Employee;
 import ru.icerebro.attedance_control.entities.User;
 import ru.icerebro.attedance_control.services.implementations.AdminService;
 import ru.icerebro.attedance_control.services.interfaces.AttedanceService;
 import ru.icerebro.attedance_control.services.interfaces.HtmlService;
 import ru.icerebro.attedance_control.services.interfaces.UserService;
 
-import java.util.Calendar;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
-import java.util.GregorianCalendar;
-import java.util.List;
 
 @Controller
 public class MainController {
@@ -30,12 +29,17 @@ public class MainController {
     private final HtmlService htmlService;
     private final AdminService adminService;
 
+    private final DudesDAO dudesDAO;
+    private final EmployeesDAO employeesDAO;
+
     @Autowired
-    public MainController(UserService userService, AttedanceService attedanceService, HtmlService htmlService, AdminService adminService) {
+    public MainController(UserService userService, AttedanceService attedanceService, HtmlService htmlService, AdminService adminService, DudesDAO dudesDAO, EmployeesDAO employeesDAO) {
         this.userService = userService;
         this.attedanceService = attedanceService;
         this.htmlService = htmlService;
         this.adminService = adminService;
+        this.dudesDAO = dudesDAO;
+        this.employeesDAO = employeesDAO;
     }
 
 
@@ -152,9 +156,17 @@ public class MainController {
     }
 
 
+    @PostMapping(value = "admin/restService/setEmpDep", consumes = "application/json")
+    @ResponseBody
+    public void setEmpDep(@RequestBody ReqInfo info){
+        adminService.setEmpDep(info);
+    }
+
+
+
     @PostMapping(value = "admin/restService/writeAttendance", consumes = "application/json")
     @ResponseBody
-    public long writeAttendance(@RequestBody AdminReqAttendance info){
+    public long writeAttendance(@RequestBody AdminReqAttendance info) throws Exception {
         return adminService.writeAttendance(info);
     }
 
@@ -170,4 +182,50 @@ public class MainController {
             return htmlService.getDepartment(info.getDepId(), info.getMonth(), info.getYear());
         }
     }
+
+
+
+    @GetMapping(value = "/admin/restService/setAutoCheck")
+    @ResponseBody
+    public int setAutoCheck(@RequestParam("empId") int empId,
+                               @RequestParam("check") boolean check,
+                               HttpServletResponse response){
+
+        Employee employee = employeesDAO.getEmployee(empId);
+
+        if (employee == null){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return -1;
+        }
+
+
+        Dude dude = dudesDAO.getDudeByKey(employee.getKey());
+
+        if (dude == null){
+            dude = new Dude();
+            dude.setKey(employee.getKey());
+            dude.setControl(check);
+            dudesDAO.saveDude(dude);
+            return 0;
+        }else {
+            dude.setControl(check);
+            dudesDAO.updateDude(dude);
+            return 0;
+        }
+    }
+
+    @GetMapping(value = "/admin/restService/getAutoCheck")
+    @ResponseBody
+    public boolean getAutoCheck(@RequestParam("key") int key){
+
+        Dude dude = dudesDAO.getDudeByKey(key);
+
+        if (dude == null){
+            return false;
+        }
+
+        return dude.getControl();
+    }
+
+
 }

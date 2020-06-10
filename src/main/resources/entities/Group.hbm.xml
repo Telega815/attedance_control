@@ -5,7 +5,7 @@
 <hibernate-mapping>
 
     <class name="ru.icerebro.attedance_control.entities.Group" table="groups" schema="public"
-           catalog="access_control_db">
+           catalog="nnb_attendance_db">
         <id name="id">
             <column name="id" sql-type="integer"/>
             <generator class="increment"/>

@@ -4,14 +4,14 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="ru.icerebro.attedance_control.entities.Authority" table="group_authorities" schema="public"
+    <class name="ru.icerebro.attedance_control.entities.AttendanceIds" table="attendanceids" schema="public"
            catalog="nnb_attendance_db">
         <id name="id">
-            <column name="id" sql-type="integer"/>
+            <column name="id" sql-type="bigint"/>
             <generator class="increment"/>
         </id>
-        <property name="authority">
-            <column name="authority" sql-type="varchar(50)" length="50"/>
+        <property name="lastwrittenid">
+            <column name="lastwrittenid" sql-type="bigint"/>
         </property>
     </class>
 </hibernate-mapping>

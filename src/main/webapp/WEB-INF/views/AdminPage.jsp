@@ -58,6 +58,12 @@
             </ul>
         </div>
 
+        <div id="idDepartmentChange">
+            <p>Отдел:</p>
+            <select id="selectDepartment3" class="SelectDepartmentClass" ></select>
+            <input id="changeDepartmentButtonK" onclick="changeDepartment()" type="button" value="Save">
+        </div>
+
         <div id="idImputCreateEmployeeK">
             <p>Ключ:</p>
             <input id="inputKeyField"  type="number" >
@@ -98,6 +104,22 @@
         </div>
     </div>
     </div>
+
+    <div class="AdminStyleP"><p>Суперчекалка</p></div>
+
+    <div>
+        <br>
+        <span style="margin-right: 10px" class="Unselected" id="spanAutoEmpName">Unselected</span>
+        <br>
+        <p style="margin-right: 10px">Отмечать автоматом:</p>
+        <input style="margin-right: 10px" id="inputAutoCheck"  type="checkbox" >
+        <input style="background-color: #4CAF50; border: 1px solid black" id="buttonSaveAutoCheck" onclick="autoCheck(event)" type="button" value="Save">
+<%--        <input type="button" id="ssssssss" value="ass">--%>
+        <br>
+        <br>
+        <br>
+    </div>
+
 </main>
 </body>
 </html>

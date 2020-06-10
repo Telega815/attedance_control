@@ -23,6 +23,34 @@ main {
     /*overflow: hidden;*/
     /*overflow-x: hidden;*/
 }
+
+#idDepartmentChange{
+    display: flex;
+    align-items: center;
+    margin: 10px 0 0 0;
+    width: 312px;
+}
+
+#changeDepartmentButtonK{
+    background-color: rgb(0,255,178);
+    height: 21px;
+    cursor: pointer;
+    border: 1px solid black;
+}
+
+#selectDepartment3{
+    height: 21px;
+    border: 1px solid black;
+    margin: 0 5px 0 10px;
+    width: 100%;
+}
+
+
+
+.Unselected {
+    color: red;
+}
+
 #header {
     display: table-cell;
     background-color: rgba(0,0,0,0.08);

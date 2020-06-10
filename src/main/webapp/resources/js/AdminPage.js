@@ -5,6 +5,51 @@ $(document).ready(function () {
     getDepartments();
 });
 
+function autoCheck(event) {
+    if ( !document.getElementById("spanAutoEmpName").classList.contains("Unselected")){
+
+        var empId = selectedEmployee.id.split("_")[1];
+
+        // var data = JSON.stringify(obj);
+        var check = document.getElementById("inputAutoCheck").checked;
+
+        var docURL = window.location.protocol +"//"+window.location.host + "/admin/restService/setAutoCheck?empId=" + empId + "&check=" + check + "&" + csrfParameter + "=" + csrfToken;
+
+        $.ajax({
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            url: docURL,
+            method: 'GET',
+            success: function(data){
+                successAnimation();
+            },
+            error: function (e) {
+                alert("Error!!!\n" + e.responseText);
+            }
+        });
+    }
+}
+
+function getAutoCheck(key) {
+    // var empId = selectedEmployee.id.split("_")[1];
+    var docURL = window.location.protocol +"//"+window.location.host + "/admin/restService/getAutoCheck?key=" + key + "&" + csrfParameter + "=" + csrfToken;
+
+    $.ajax({
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        url: docURL,
+        method: 'GET',
+        success: function(data){
+            document.getElementById("inputAutoCheck").checked = data;
+        },
+        error: function (e) {
+            alert("Error!!!\n" + e.responseText);
+        }
+    });
+}
+
 function selectEmployee(event){
     var empLi = document.getElementsByClassName("employeeLi");
     for(var i =0 ; i < empLi.length; i++){
@@ -31,6 +76,48 @@ function selectEmployee(event){
         data: data,
         success: function(data){
             document.getElementById("inputKeyField").value = data;
+
+            var span = document.getElementById("spanAutoEmpName");
+
+            span.innerText = selectedEmployee.innerText;
+            if (span.classList.contains("Unselected"))
+                span.classList.remove("Unselected")
+
+            getAutoCheck(data)
+        },
+        error: function (e) {
+            alert("Error!!!\n" + e.responseText);
+        }
+    });
+}
+
+function changeDepartment() {
+    var selectedId = document.getElementById("selectDepartment3").selectedOptions.item(0).id.split("_")[1];
+
+    if (selectedEmployee == null){
+        alert("Выберите чебурека!");
+        return;
+    }
+
+
+    var obj = {
+        empId: selectedEmployee.id.split("_")[1],
+        depId: selectedId
+    };
+
+    var data = JSON.stringify(obj);
+
+    var docURL = window.location.protocol +"//"+window.location.host + "/admin/restService/setEmpDep?" + csrfParameter + "=" + csrfToken;
+
+    $.ajax({
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        url: docURL,
+        method: 'POST',
+        data: data,
+        success: function(){
+            alert("Получилось. Обнови страницу!!!")
         },
         error: function (e) {
             alert("Error!!!\n" + e.responseText);
@@ -204,6 +291,8 @@ function getDepartments() {
         success: function (data) {
             var select = document.getElementById("selectDepartment");
             var select2 = document.getElementById("selectDepartment2");
+            var select3 = document.getElementById("selectDepartment3");
+            select3.innerHTML = "";
             select2.innerHTML = "";
             select.innerHTML = "";
 
@@ -219,6 +308,12 @@ function getDepartments() {
                 option2.value = data.deps[i];
                 option2.textContent = data.deps[i];
                 select2.appendChild(option2);
+
+                var option3 = document.createElement("option");
+                option3.id = "depOptionSel3_" + i;
+                option3.value = data.deps[i];
+                option3.textContent = data.deps[i];
+                select3.appendChild(option3);
             }
 
             var ev = {

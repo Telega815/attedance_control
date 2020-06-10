@@ -10,6 +10,9 @@ public class Employee {
     private Integer key;
     private Collection<Attendance> attendance;
     private Department department;
+    private Boolean e_hidden;
+
+
 
     public int getId() {
         return id;
@@ -91,5 +94,13 @@ public class Employee {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public boolean isE_hidden() {
+        return e_hidden;
+    }
+
+    public void setE_hidden(boolean e_hidden) {
+        this.e_hidden = e_hidden;
     }
 }

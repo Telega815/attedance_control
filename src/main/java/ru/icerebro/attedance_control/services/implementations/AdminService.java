@@ -1,20 +1,20 @@
 package ru.icerebro.attedance_control.services.implementations;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import ru.icerebro.attedance_control.JSON.AdminReqAttendance;
 import ru.icerebro.attedance_control.JSON.AdminReqInfo;
 import ru.icerebro.attedance_control.JSON.AdminRespInfo;
 import ru.icerebro.attedance_control.JSON.ReqInfo;
+import ru.icerebro.attedance_control.dao.interfaces.AttIdDAO;
 import ru.icerebro.attedance_control.dao.interfaces.AttendanceDAO;
 import ru.icerebro.attedance_control.dao.interfaces.DepartmentsDAO;
 import ru.icerebro.attedance_control.dao.interfaces.EmployeesDAO;
 import ru.icerebro.attedance_control.entities.Attendance;
+import ru.icerebro.attedance_control.entities.AttendanceIds;
 import ru.icerebro.attedance_control.entities.Department;
 import ru.icerebro.attedance_control.entities.Employee;
 
@@ -31,13 +31,17 @@ public class AdminService {
 
     private final AttendanceDAO attendanceDAO;
 
+    private final AttIdDAO attIdDAO;
+
+
     private int tryNumber = 0;
 
     @Autowired
-    public AdminService(DepartmentsDAO departmentsDAO, EmployeesDAO employeesDAO, AttendanceDAO attendanceDAO) {
+    public AdminService(DepartmentsDAO departmentsDAO, EmployeesDAO employeesDAO, AttendanceDAO attendanceDAO, AttIdDAO attIdDAO) {
         this.departmentsDAO = departmentsDAO;
         this.employeesDAO = employeesDAO;
         this.attendanceDAO = attendanceDAO;
+        this.attIdDAO = attIdDAO;
     }
 
     public int createDepartment(String depName){
@@ -54,6 +58,7 @@ public class AdminService {
         employee.setName(info.getName());
         employee.setPatronymic(info.getPatronymic());
         employee.setKey(info.getKey());
+        employee.setE_hidden(false);
         return employeesDAO.saveEmployee(employee);
     }
 
@@ -116,7 +121,7 @@ public class AdminService {
         employeesDAO.updateEmployee(employee);
     }
 
-    public long writeAttendance(AdminReqAttendance info){
+    public long writeAttendance(AdminReqAttendance info) throws Exception {
         Employee employee = employeesDAO.getEmployee(info.getEmplId());
         Attendance attendance = new Attendance();
         attendance.seteId(employee.getId());
@@ -132,21 +137,50 @@ public class AdminService {
         return this.saveAttendance(attendance);
     }
 
-    private long saveAttendance(Attendance attendance){
-        long r = -1;
-        DataIntegrityViolationException exception = new DataIntegrityViolationException("primary key already exist");
-        while (tryNumber < 150){
+    private long saveAttendance(Attendance attendance) throws Exception {
+        long result = -1;
+        int tryNum = 1;
+
+        while (tryNum < 150){
             try {
-                r = attendanceDAO.saveAttendance(attendance);
+                AttendanceIds attendanceIds = attIdDAO.getAttendanceIds(1);
+
+                attendanceIds.setLastwrittenid(attendanceIds.getLastwrittenid()+tryNum);
+                attendance.setId(attendanceIds.getLastwrittenid());
+
+                result = attendanceDAO.saveAttendance(attendance);
+
+                attIdDAO.updateAttendance(attendanceIds);
                 break;
-            }catch (DataIntegrityViolationException e){
-                tryNumber++;
+            }catch (Exception e){
+                tryNum++;
             }
         }
-        tryNumber = 0;
-        if (r == -1){
-            throw exception;
+
+        if (result == -1){
+            throw new Exception("Ids error");
         }
-        return r;
+
+        return result;
+
+//        AttendanceIds attendanceIds = attIdDAO.getAttendanceIds(1);
+//
+//        attendanceIds.setLastwrittenid(attendanceIds.getLastwrittenid()+1);
+//        attendance.setId(attendanceIds.getLastwrittenid());
+//
+//        long result = attendanceDAO.saveAttendance(attendance);
+//
+//        attIdDAO.updateAttendance(attendanceIds);
+//
+//        return result;
+    }
+
+    public void setEmpDep(ReqInfo info) {
+        Employee employee = employeesDAO.getEmployee(info.getEmpId());
+        Department department = departmentsDAO.getDepartment(info.getDepId());
+
+        employee.setDepartment(department);
+
+        employeesDAO.updateEmployee(employee);
     }
 }
